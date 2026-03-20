@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form - Professional Validation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .container {
+            max-width: 600px;
+        }
+        
+        .form-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-title {
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .form-subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-control.is-invalid, .form-select.is-invalid {
+            border-color: #dc3545;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .password-strength {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            display: none;
+        }
+        
+        .password-strength.show {
+            display: block;
+        }
+        
+        .strength-bar {
+            width: 100%;
+            height: 6px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+        
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s;
+            width: 0%;
+        }
+        
+        .strength-weak { background-color: #dc3545; }
+        .strength-fair { background-color: #ffc107; }
+        .strength-good { background-color: #17a2b8; }
+        .strength-strong { background-color: #28a745; }
+        
+        .strength-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .checkbox-group {
+            margin-top: 15px;
+        }
+        
+        .form-check {
+            padding-left: 0;
+        }
+        
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+        
+        .form-check-label {
+            margin-bottom: 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 12px 40px;
+            border-radius: 5px;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .alert {
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .row-two-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        @media (max-width: 576px) {
+            .row-two-cols {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-card">
+            <h1 class="form-title">Contact Form</h1>
+            <p class="form-subtitle">Please fill in all required fields</p>
+            
+            <div id="successAlert" class="alert alert-success alert-dismissible fade" role="alert">
+                <strong>Success!</strong> <span id="successMessage"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div id="errorAlert" class="alert alert-danger alert-dismissible fade" role="alert">
+                <strong>Error!</strong> <span id="errorMessage"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <form id="contactForm" method="POST">
+                {{ form.hidden_tag() }}
+                
+                <!-- Name Fields -->
+                <div class="row-two-cols">
+                    <div class="form-group">
+                        {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else ""), placeholder="John") }}
+                        <label for="first_name">First Name *</label>
+                        {% if form.first_name.errors %}
+                            <div class="error-message show">
+                                {{ form.first_name.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else ""), placeholder="Doe") }}
+                        <label for="last_name">Last Name *</label>
+                        {% if form.last_name.errors %}
+                            <div class="error-message show">
+                                {{ form.last_name.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Email Field -->
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="john.doe@example.com") }}
+                    {% if form.email.errors %}
+                        <div class="error-message show">
+                            {{ form.email.errors[0] }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Phone Field -->
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else ""), placeholder="+1 (555) 123-4567") }}
+                    {% if form.phone.errors %}
+                        <div class="error-message show">
+                            {{ form.phone.errors[0] }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Country Field -->
+                <div class="form-group">
+                    <label for="country">Country *</label>
+                    {{ form.country(class="form-select" + (" is-invalid" if form.country.errors else "")) }}
+                    {% if form.country.errors %}
+                        <div class="error-message show">
+                            {{ form.country.errors[0] }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Password Fields -->
+                <div class="row-two-cols">
+                    <div class="form-group">
+                        <label for="password">Password *</label>
+                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), id="passwordField", placeholder="Min 8 characters") }}
+                        {% if form.password.errors %}
+                            <div class="error-message show">
+                                {{ form.password.errors[0] }}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Password Strength Indicator -->
+                        <div id="passwordStrength" class="password-strength">
+                            <div class="strength-bar">
+                                <div class="strength-fill" id="strengthFill"></div>
+                            </div>
+                            <div class="strength-text">
+                                Strength: <span id="strengthText">Very Weak</span>
+                            </div>
+                            <div style="font-size: 0.8rem; margin-top: 8px; color: #666;">
+                                <div>✓ Uppercase: <span id="hasUppercase" style="color: #dc3545;">No</span></div>
+                                <div>✓ Lowercase: <span id="hasLowercase" style="color: #dc3545;">No</span></div>
+                                <div>✓ Numbers: <span id="hasNumber" style="color: #dc3545;">No</span></div>
+                                <div>✓ Special Chars: <span id="hasSpecial" style="color: #dc3545;">No</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password *</label>
+                        {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), placeholder="Repeat password") }}
+                        {% if form.confirm_password.errors %}
+                            <div class="error-message show">
+                                {{ form.confirm_password.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Message Field -->
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    {{ form.message(class="form-control" + (" is-invalid" if form.message.errors else ""), rows="4", placeholder="Optional message...") }}
+                    {% if form.message.errors %}
+                        <div class="error-message show">
+                            {{ form.message.errors[0] }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Checkboxes -->
+                <div class="checkbox-group">
+                    <div class="form-check">
+                        {{ form.subscribe_newsletter(class="form-check-input") }}
+                        <label class="form-check-label" for="subscribe_newsletter">
+                            Subscribe to our newsletter
+                        </label>
+                    </div>
+                    
+                    <div class="form-check" style="margin-top: 10px;">
+                        {{ form.agree_terms(class="form-check-input" + (" is-invalid" if form.agree_terms.errors else "")) }}
+                        <label class="form-check-label" for="agree_terms">
+                            I agree to terms and conditions *
+                        </label>
+                        {% if form.agree_terms.errors %}
+                            <div class="error-message show">
+                                {{ form.agree_terms.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Submit Button -->
+                <button type="submit" class="btn-submit" id="submitBtn">Submit Form</button>
+            </form>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const form = document.getElementById('contactForm');
+        const passwordField = document.getElementById('passwordField');
+        const passwordStrength = document.getElementById('passwordStrength');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Real-time password validation
+        passwordField.addEventListener('input', async function() {
+            const password = this.value;
+            
+            if (password.length === 0) {
+                passwordStrength.classList.remove('show');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/validate-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ password: password })
+                });
+                
+                const data = await response.json();
+                updatePasswordStrength(data);
+            } catch (error) {
+                console.error('Error validating password:', error);
+            }
+        });
+        
+        function updatePasswordStrength(validation) {
+            passwordStrength.classList.add('show');
+            
+            // Update indicators
+            document.getElementById('hasUppercase').textContent = validation.has_uppercase ? '✓ Yes' : '✗ No';
+            document.getElementById('hasUppercase').style.color = validation.has_uppercase ? '#28a745' : '#dc3545';
+            
+            document.getElementById('hasLowercase').textContent = validation.has_lowercase ? '✓ Yes' : '✗ No';
+            document.getElementById('hasLowercase').style.color = validation.has_lowercase ? '#28a745' : '#dc3545';
+            
+            document.getElementById('hasNumber').textContent = validation.has_number ? '✓ Yes' : '✗ No';
+            document.getElementById('hasNumber').style.color = validation.has_number ? '#28a745' : '#dc3545';
+            
+            document.getElementById('hasSpecial').textContent = validation.has_special ? '✓ Yes' : '✗ No';
+            document.getElementById('hasSpecial').style.color = validation.has_special ? '#28a745' : '#dc3545';
+            
+            // Update strength bar
+            const score = validation.strength_score;
+            strengthFill.style.width = score + '%';
+            
+            let strengthClass = '';
+            let strengthLabel = '';
+            if (score < 20) {
+                strengthClass = 'strength-weak';
+                strengthLabel = 'Very Weak';
+            } else if (score < 40) {
+                strengthClass = 'strength-weak';
+                strengthLabel = 'Weak';
+            } else if (score < 60) {
+                strengthClass = 'strength-fair';
+                strengthLabel = 'Fair';
+            } else if (score < 80) {
+                strengthClass = 'strength-good';
+                strengthLabel = 'Good';
+            } else {
+                strengthClass = 'strength-strong';
+                strengthLabel = 'Strong';
+            }
+            
+            strengthFill.className = 'strength-fill ' + strengthClass;
+            strengthText.textContent = strengthLabel;
+        }
+        
+        // Form submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            const formData = new FormData(form);
+            
+            try {
+                const response = await fetch('/submit-form', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show success message
+                    const successAlert = document.getElementById('successAlert');
+                    const successMessage = document.getElementById('successMessage');
+                    successMessage.textContent = data.message;
+                    successAlert.classList.add('show');
+                    
+                    // Reset form
+                    form.reset();
+                    passwordStrength.classList.remove('show');
+                    
+                    // Hide error alert if visible
+                    document.getElementById('errorAlert').classList.remove('show');
+                    
+                    // Scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    // Show error messages
+                    const errorAlert = document.getElementById('errorAlert');
+                    const errorMessage = document.getElementById('errorMessage');
+                    
+                    if (data.data) {
+                        const errorList = Object.entries(data.data)
+                            .map(([field, message]) => `${field}: ${message}`)
+                            .join('<br>');
+                        errorMessage.innerHTML = errorList;
+                    } else {
+                        errorMessage.textContent = 'Please fill all required fields correctly.';
+                    }
+                    
+                    errorAlert.classList.add('show');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                const errorAlert = document.getElementById('errorAlert');
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.textContent = 'An error occurred while submitting the form. Please try again.';
+                errorAlert.classList.add('show');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Form';
+            }
+        });
+    </script>
+</body>
+</html>
